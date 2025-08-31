@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FigureIt | Home</title>
   <link rel="stylesheet" href="homepage.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" 
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
   <!-- Header -->
@@ -14,8 +17,38 @@
       <a href="#">Home</a>
       <a href="#">About</a>
       <a href="#">Events</a>
-      <a href="#">Login</a>
-      <a href="#">Sign Up</a>
+      
+      <!-- Auth Links (shown when not logged in) -->
+      <div id="auth-links">
+        <a href="signup.html">Login</a>
+        <a href="signup.html">Sign Up</a>
+      </div>
+      
+      <!-- User Profile (shown when logged in) -->
+      <div id="user-profile" style="display: none;">
+        <div class="profile-dropdown">
+          <button class="profile-btn" id="profile-btn">
+            <i class="fa-solid fa-user-circle"></i>
+            <span id="user-email">user@example.com</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu" id="dropdown-menu">
+            <a href="#" class="dropdown-item">
+              <i class="fa-solid fa-user"></i>
+              Profile
+            </a>
+            <a href="#" class="dropdown-item">
+              <i class="fa-solid fa-cog"></i>
+              Settings
+            </a>
+            <hr class="dropdown-divider">
+            <a href="#" class="dropdown-item" id="logout-btn">
+              <i class="fa-solid fa-sign-out-alt"></i>
+              Logout
+            </a>
+          </div>
+        </div>
+      </div>
     </nav>
   </header>
 
@@ -50,5 +83,8 @@
   <footer>
     <p>© 2025 FigureIt | Designed for Institutions & Alumni</p>
   </footer>
+
+  <!-- Homepage JavaScript -->
+  <script type="module" src="homepage.js"></script>
 </body>
 </html>
