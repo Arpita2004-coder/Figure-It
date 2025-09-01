@@ -2,7 +2,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js';
 
-// Import Firebase configuration from separate file
+// Import Firebase configuration 
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
@@ -16,164 +16,161 @@ const userEmailSpan = document.getElementById('user-email');
 const profileBtn = document.getElementById('profile-btn');
 const dropdownMenu = document.getElementById('dropdown-menu');
 const logoutBtn = document.getElementById('logout-btn');
+const successMessage = document.getElementById('success-message');
+const errorMessage = document.getElementById('error-message');
+
+// Utility Functions
+function showMessage(message, isError = false) {
+  const messageEl = isError ? errorMessage : successMessage;
+  messageEl.textContent = message;
+  messageEl.style.display = 'block';
+  
+  setTimeout(() => {
+    messageEl.style.display = 'none';
+  }, 5000);
+}
+
+function scrollToFeatures() {
+  document.getElementById('features').scrollIntoView({ 
+    behavior: 'smooth' 
+  });
+}
+
+function getStarted() {
+  // Check if user is logged in
+  const isLoggedIn = userProfile.style.display !== 'none';
+  
+  if (isLoggedIn) {
+    // Redirect to dashboard
+    showMessage('Redirecting to dashboard...');
+    setTimeout(() => {
+      window.location.href = 'dashboard.html';
+    }, 1000);
+  } else {
+    // Redirect to signup
+    showMessage('Redirecting to sign up...');
+    setTimeout(() => {
+      window.location.href = 'signup.html';
+    }, 1000);
+  }
+}
+
+// Make functions global for onclick handlers
+window.scrollToFeatures = scrollToFeatures;
+window.getStarted = getStarted;
 
 // Toggle dropdown menu
-profileBtn.addEventListener('click', (e) => {
+if (profileBtn) {
+  profileBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     dropdownMenu.classList.toggle('show');
-});
+  });
+}
 
 // Close dropdown when clicking outside
 document.addEventListener('click', () => {
+  if (dropdownMenu) {
     dropdownMenu.classList.remove('show');
+  }
 });
 
 // Prevent dropdown from closing when clicking inside
-dropdownMenu.addEventListener('click', (e) => {
+if (dropdownMenu) {
+  dropdownMenu.addEventListener('click', (e) => {
     e.stopPropagation();
-});
+  });
+}
 
 // Handle logout
-logoutBtn.addEventListener('click', async (e) => {
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     
     try {
-        await signOut(auth);
-        alert('Logged out successfully!');
-        // The onAuthStateChanged listener will handle UI updates
+      // Add loading state
+      logoutBtn.classList.add('loading');
+      
+      await signOut(auth);
+      
+      // For demo purposes, simulate logout
+      setTimeout(() => {
+        showMessage('Logged out successfully!');
+        // Simulate user state change
+        handleAuthStateChange(null);
+        logoutBtn.classList.remove('loading');
+      }, 1000);
+      
     } catch (error) {
-        console.error('Logout error:', error);
-        alert('Error logging out. Please try again.');
+      console.error('Logout error:', error);
+      showMessage('Error logging out. Please try again.', true);
+      logoutBtn.classList.remove('loading');
     }
-});
+  });
+}
+
+// Handle authentication state changes
+function handleAuthStateChange(user) {
+  if (user) {
+    // User is signed in
+    console.log('User is logged in:', user.email);
+    
+    authLinks.style.display = 'none';
+    userProfile.style.display = 'block';
+    userEmailSpan.textContent = user.email;
+    
+  } else {
+    // User is signed out
+    console.log('User is not logged in');
+    
+    authLinks.style.display = 'flex';
+    userProfile.style.display = 'none';
+    
+    if (dropdownMenu) {
+      dropdownMenu.classList.remove('show');
+    }
+  }
+}
 
 // Monitor authentication state
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in
-        console.log('User is logged in:', user.email);
-        
-        // Show user profile, hide auth links
-        authLinks.style.display = 'none';
-        userProfile.style.display = 'block';
-        
-        // Display user email in profile
-        userEmailSpan.textContent = user.email;
-        
-    } else {
-        // User is signed out
-        console.log('User is not logged in');
-        
-        // Show auth links, hide user profile
-        authLinks.style.display = 'flex';
-        userProfile.style.display = 'none';
-        
-        // Clear dropdown state
-        dropdownMenu.classList.remove('show');
+onAuthStateChanged(auth, handleAuthStateChange);
+
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
+  });
 });
 
-// Optional: Add some basic styling for the profile dropdown
-const style = document.createElement('style');
-style.textContent = `
-    .profile-dropdown {
-        position: relative;
-        display: inline-block;
+// Add scroll effect to header
+window.addEventListener('scroll', () => {
+  const header = document.querySelector('header');
+  if (window.scrollY > 100) {
+    header.style.background = 'rgba(255, 255, 255, 0.98)';
+  } else {
+    header.style.background = 'rgba(255, 255, 255, 0.95)';
+  }
+});
+
+// Loading animation for buttons
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (!this.classList.contains('loading')) {
+      this.classList.add('loading');
+      setTimeout(() => {
+        this.classList.remove('loading');
+      }, 2000);
     }
-    
-    .profile-btn {
-        background: none;
-        border: none;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: background-color 0.2s;
-    }
-    
-    .profile-btn:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .profile-btn i.fa-user-circle {
-        font-size: 20px;
-    }
-    
-    .profile-btn i.fa-chevron-down {
-        font-size: 12px;
-        transition: transform 0.2s;
-    }
-    
-    .profile-btn:hover i.fa-chevron-down {
-        transform: rotate(180deg);
-    }
-    
-    .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: white;
-        border: 1px solid #e1e5e9;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        min-width: 200px;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.2s ease;
-    }
-    
-    .dropdown-menu.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 16px;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.2s;
-    }
-    
-    .dropdown-item:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .dropdown-item i {
-        width: 16px;
-        font-size: 14px;
-    }
-    
-    .dropdown-divider {
-        border: none;
-        border-top: 1px solid #e1e5e9;
-        margin: 8px 0;
-    }
-    
-    #auth-links {
-        display: flex;
-        gap: 20px;
-    }
-    
-    #auth-links a {
-        text-decoration: none;
-        color: inherit;
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: background-color 0.2s;
-    }
-    
-    #auth-links a:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-`;
-document.head.appendChild(style);
+  });
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('FigureIt Homepage loaded successfully');
+});
